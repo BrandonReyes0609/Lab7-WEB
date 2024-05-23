@@ -10,4 +10,5 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  base: '/{Lab7-WEB}/' // Reemplaza {TU_REPOSITORIO} con el nombre de tu repositorio
 });
