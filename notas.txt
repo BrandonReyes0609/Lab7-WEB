@@ -1,0 +1,277 @@
+npm install eslint eslint-plugin-react eslint-plugin-react-hooks eslint-plugin-react-refresh
+
+npm install @testing-library/jest-dom@latest
+npx sb init
+https://chatgpt.com/share/239b6e0f-c8a4-48ff-9547-8b748f1e2b23
+
+https://chatgpt.com/c/b387f186-0b42-41c7-9b64-0ceaa5289cdd
+
+https://chatgpt.com/c/152dc32a-871a-4fb8-9709-05817cd14b71
+
+Comandos impsortates
+nvm use 20.12.2
+
+Para ejecutar el programa
+npm run dev
+
+Para ejectuar los test
+npm run test
+
+NO fucnciona
+yarn test
+
+
+npm start
+  Para aincializar el Storybook
+ npx sb init
+
+ npm ru  storybook
+
+
+npm run coverage
+
+Para incial github Pages
+npm install gh-pages --save-dev
+
+
+
+Calculator jsx
+import React, { useState } from 'react';
+import Display from './Display';
+import Button from './Button';
+
+const Calculator = () => {
+  const [displayValue, setDisplayValue] = useState('0');
+  const [storedValue, setStoredValue] = useState(null);
+  const [operation, setOperation] = useState(null);
+
+  const handleButtonClick = (label) => {
+    if (!isNaN(label)) {
+      // Handle number input
+      setDisplayValue((prev) => (prev === '0' ? label : prev + label).slice(0, 9));
+    } else if (['+', '-', '*', '÷'].includes(label)) {
+      // Handle operations
+      setStoredValue(displayValue);
+      setOperation(label);
+      setDisplayValue('0');
+    } else if (label === '=') {
+      // Handle result
+      const result = calculateResult();
+      setDisplayValue(result);
+      setStoredValue(null);
+      setOperation(null);
+    } else if (label === 'C') {
+      // Handle clear
+      setDisplayValue('0');
+      setStoredValue(null);
+      setOperation(null);
+    }
+  };
+
+  const calculateResult = () => {
+    let result;
+    const currentValue = parseFloat(displayValue);
+    const prevValue = parseFloat(storedValue);
+
+    switch (operation) {
+      case '+':
+        result = prevValue + currentValue;
+        break;
+      case '-':
+        result = prevValue - currentValue;
+        break;
+      case '*':
+        result = prevValue * currentValue;
+        break;
+      case '÷':
+        result = prevValue / currentValue;
+        break;
+      default:
+        return displayValue;
+    }
+
+    if (result > 999999999 || result < 0) {
+      return 'ERROR';
+    }
+    return result.toString().slice(0, 9);
+  };
+
+  return (
+    <div className="calculator">
+      <Display value={displayValue} />
+      <div className="calculator-keyboard">
+        <div className="calculator-keyboard_container_numbers">
+          {['C', '+/-', '%', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].map((key) => (
+            <Button key={key} label={key} onClick={handleButtonClick} className="calculator-keyboard_number_key" />
+          ))}
+        </div>
+        <div className="calculator-keyboard_container_operators">
+          {['÷', '*', '-', '+', '='].map((key) => (
+            <Button key={key} label={key} onClick={handleButtonClick} className="calculator-keyboard_operator_key" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Calculator;
+
+
+Calclator.txst.jsx
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { test, expect } from 'vitest';
+import Calculator from '../components/Calculator';
+
+test('displays numbers when clicked', () => {
+  render(<Calculator />);
+  fireEvent.click(screen.getByText('1'));
+  fireEvent.click(screen.getByText('2'));
+  fireEvent.click(screen.getByText('3'));
+  expect(screen.getByText('123')).toBeInTheDocument();
+});
+
+test('clears display when C is clicked', () => {
+  render(<Calculator />);
+  fireEvent.click(screen.getByText('1'));
+  fireEvent.click(screen.getByText('C'));
+  expect(screen.getByText('0')).toBeInTheDocument();
+});
+
+test('performs addition', () => {
+  render(<Calculator />);
+  fireEvent.click(screen.getByText('1'));
+  fireEvent.click(screen.getByText('+'));
+  fireEvent.click(screen.getByText('2'));
+  fireEvent.click(screen.getByText('='));
+  expect(screen.getByText('3')).toBeInTheDocument();
+});
+
+test('performs subtraction', () => {
+  render(<Calculator />);
+  fireEvent.click(screen.getByText('5'));
+  fireEvent.click(screen.getByText('-'));
+  fireEvent.click(screen.getByText('3'));
+  fireEvent.click(screen.getByText('='));
+  expect(screen.getByText('2')).toBeInTheDocument();
+});
+
+test('performs multiplication', () => {
+  render(<Calculator />);
+  fireEvent.click(screen.getByText('2'));
+  fireEvent.click(screen.getByText('*'));
+  fireEvent.click(screen.getByText('3'));
+  fireEvent.click(screen.getByText('='));
+  expect(screen.getByText('6')).toBeInTheDocument();
+});
+
+test('performs division', () => {
+  render(<Calculator />);
+  fireEvent.click(screen.getByText('6'));
+  fireEvent.click(screen.getByText('÷'));
+  fireEvent.click(screen.getByText('3'));
+  fireEvent.click(screen.getByText('='));
+  expect(screen.getByText('2')).toBeInTheDocument();
+});
+
+test('displays ERROR for negative results', () => {
+  render(<Calculator />);
+  fireEvent.click(screen.getByText('1'));
+  fireEvent.click(screen.getByText('-'));
+  fireEvent.click(screen.getByText('2'));
+  fireEvent.click(screen.getByText('='));
+  expect(screen.getByText('ERROR')).toBeInTheDocument();
+});
+
+test('displays ERROR for results exceeding 999999999', () => {
+  render(<Calculator />);
+  fireEvent.click(screen.getByText('9'));
+  fireEvent.click(screen.getByText('*'));
+  fireEvent.click(screen.getByText('9'));
+  fireEvent.click(screen.getByText('9'));
+  fireEvent.click(screen.getByText('9'));
+  fireEvent.click(screen.getByText('9'));
+  fireEvent.click(screen.getByText('9'));
+  fireEvent.click(screen.getByText('9'));
+  fireEvent.click(screen.getByText('9'));
+  fireEvent.click(screen.getByText('9'));
+  fireEvent.click(screen.getByText('='));
+  expect(screen.getByText('ERROR')).toBeInTheDocument();
+});
+----------------------------------------------------------------------------------------------------------
+import React, { useState } from 'react';
+import Display from './Display';
+import Button from './Button';
+
+const Calculator = () => {
+  const [displayValue, setDisplayValue] = useState('0');
+  const [prevValue, setPrevValue] = useState(null);
+  const [operator, setOperator] = useState(null);
+
+  const handleNumberClick = (number) => {
+    setDisplayValue((prev) => (prev === '0' ? String(number) : prev + number));
+  };
+
+  const handleOperatorClick = (nextOperator) => {
+    const inputValue = parseFloat(displayValue);
+
+    if (prevValue === null) {
+      setPrevValue(inputValue);
+    } else if (operator) {
+      const currentValue = prevValue || 0;
+      const newValue = calculate(currentValue, inputValue, operator);
+
+      if (newValue > 999999999) {
+        setDisplayValue('ERROR');
+      } else {
+        setDisplayValue(String(newValue));
+        setPrevValue(newValue);
+      }
+    }
+
+    setOperator(nextOperator);
+    setDisplayValue('0');
+  };
+
+  const calculate = (first, second, operator) => {
+    if (operator === '+') {
+      return first + second;
+    } else if (operator === '-') {
+      return first - second;
+    } else if (operator === '*') {
+      return first * second;
+    } else if (operator === '÷') {
+      return first / second;
+    }
+    return second;
+  };
+
+  const handleClear = () => {
+    setDisplayValue('0');
+    setPrevValue(null);
+    setOperator(null);
+  };
+
+  return (
+    <div className="calculator">
+      <Display value={displayValue} />
+      <div className="calculator-keyboard">
+        <div className="calculator-keyboard_container_numbers">
+          <Button dataKey="C" onClick={handleClear}>C</Button>
+          {[...Array(10).keys()].map(n => (
+            <Button key={n} dataKey={n} onClick={() => handleNumberClick(n)}>{n}</Button>
+          ))}
+          <Button dataKey="." onClick={() => handleNumberClick('.')}>.</Button>
+        </div>
+        <div className="calculator-keyboard_container_operators">
+          {['÷', '*', '-', '+', '='].map(op => (
+            <Button key={op} dataKey={op} onClick={() => handleOperatorClick(op)}>{op}</Button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Calculator;
